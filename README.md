@@ -1,9 +1,6 @@
 <h1 align="center">Hi 👋, I'm Garv R Changrani</h1>
 <h3 align="center">A passionate AI/ML enthusiast and full-stack software developer, currently pursuing a B.Tech in Computer Science and Engineering. I have a keen interest in building intelligent systems and impactful applications, and I'm actively working on projects involving AI, Indic language chatbots, and full-stack web development.</h3>
 
-<p align="left"> <img src="https://komarev.com/ghpvc/?username=garvity&label=Profile%20views&color=0e75b6&style=flat" alt="garvity" /> </p>
-
-
 <h3 align="left">Connect with me:</h3>
 <p align="left">
 <a href="https://linkedin.com/in/garvrchangrani" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="garvrchangrani" height="30" width="40" /></a>

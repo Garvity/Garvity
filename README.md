@@ -1,5 +1,5 @@
 <h1 align="center">Hi 👋, I'm Garv R Changrani</h1>
-<h3 align="center">A passionate AI/ML enthusiast and full-stack software developer, currently pursuing a B.Tech in Computer Science and Engineering. I have a keen interest in building intelligent systems and impactful applications.</h3>
+<h3 align="center">A passionate AI/ML enthusiast and full-stack software developer, currently pursuing a B.Tech in Computer Science and Engineering.</h3>
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=garvity&label=Profile%20views&color=0e75b6&style=flat" alt="garvity" /> </p>
 

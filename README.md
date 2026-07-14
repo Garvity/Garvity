@@ -23,6 +23,15 @@
     <img src="https://komarev.com/ghpvc/?username=garvity&style=for-the-badge&color=0d1117&labelColor=0a0a0a&label=PROFILE+VIEWS" alt="Profile Views" />
   </a>
 </p>
+
+<!-- ▓▓▓ EMAIL BUTTON ▓▓▓ -->
+<p align="center">
+  <a href="mailto:garvity375@gmail.com">
+    <img src="https://img.shields.io/badge/garvity375%40gmail.com-0d1117?style=for-the-badge&logo=gmail&logoColor=39ff88&labelColor=0a0a0a" alt="Email — Ofc.kusharu@gmail.com" />
+  </a>
+</p>
+
+
 <br><br>
 
 <!-- ============ TECH STACK ============ -->

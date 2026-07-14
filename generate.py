@@ -292,10 +292,6 @@ THEMES = {
     },
 }
 
-# Classic terminal ANSI palette strip shown under the portrait (neofetch-style).
-ANSI_STRIP = ["#ff5f56", "#ffbd2e", "#27c93f", "#58a6ff", "#bc8cff", "#39c5cf", "#f778ba", "#8b949e"]
-
-
 # ---------------------------------------------------------------------------
 # 5. SVG BUILDER
 # ---------------------------------------------------------------------------
@@ -367,7 +363,7 @@ def build_svg(theme, data):
 
         push(height, render)
 
-    def section_header(text_svg, height=24, size=12):
+    def section_header(text_svg, height=26, size=13.5):
         def render(y_top, text_svg=text_svg, height=height, size=size):
             return (
                 f'<text x="{info_x}" y="{baseline_of(y_top, height)}" font-size="{size}" '
@@ -427,29 +423,37 @@ def build_svg(theme, data):
     def render_prompt(y_top):
         user_host = f'{config.get("githubUsername", "me")}@github'
         return (
-            f'<text x="{info_x}" y="{baseline_of(y_top, 24)}" font-size="13">'
+            f'<text x="{info_x}" y="{baseline_of(y_top, 24)}" font-size="13.5">'
             f'<tspan fill="{t["textMuted"]}">{escape_xml(user_host)}</tspan>'
             f'<tspan fill="{t["accent"]}">:~$</tspan>'
-            f'<tspan fill="{t["textPrimary"]}"> neofetch --profile</tspan></text>'
+            f'<tspan fill="{t["textPrimary"]}"> ./profile --render</tspan></text>'
         )
 
     push(24, render_prompt)
 
     text_line(config["name"], 30, t["textPrimary"], 42, weight=700)
 
-    def render_role(y_top):
-        role_text = escape_xml(fit_text(config["role"], info_w - 24, 17))
+    # thin accent underline anchoring the name
+    def render_name_rule(y_top):
         return (
-            f'<text x="{info_x}" y="{baseline_of(y_top, 27)}" font-size="17">'
+            f'<rect x="{info_x}" y="{y_top + 1}" width="64" height="3" rx="1.5" fill="{t["accent"]}"/>'
+        )
+
+    push(10, render_name_rule)
+
+    def render_role(y_top):
+        role_text = escape_xml(fit_text(config["role"], info_w - 26, 19))
+        return (
+            f'<text x="{info_x}" y="{baseline_of(y_top, 30)}" font-size="19">'
             f'<tspan fill="{t["accent"]}">&gt; {role_text} </tspan>'
             f'<tspan class="cursor" fill="{t["accent"]}">█</tspan></text>'
         )
 
-    push(27, render_role)
+    push(30, render_role)
 
     if config.get("tagline"):
         # word-wrap the tagline (up to 2 lines) instead of truncating it
-        TAG_FS = 12.5
+        TAG_FS = 14
         budget = max_chars_for(info_w, TAG_FS)
         tag_lines = [""]
         for word in config["tagline"].split():
@@ -459,7 +463,7 @@ def build_svg(theme, data):
             else:
                 tag_lines.append(word)
         for line in tag_lines[:2]:
-            text_line(line, TAG_FS, t["textMuted"], 21)
+            text_line(line, TAG_FS, t["textMuted"], 23)
     divider(20)
 
     # languages / speaks / hobbies
@@ -503,7 +507,7 @@ def build_svg(theme, data):
 
     # contact — one full-width row per entry (pulsing dot + fixed-width
     # label + value), so even long handles/urls never get truncated.
-    section_header("$ cat contact.sh", height=22)
+    section_header("$ cat contact.sh", height=26)
 
     contact = config.get("contact", {})
     contact_rows = [
@@ -518,18 +522,18 @@ def build_svg(theme, data):
         if value  # a missing config field just drops the entry
     ]
 
-    LABEL_COL_W = 96  # px reserved for the uppercase label
+    LABEL_COL_W = 95  # px reserved for the uppercase label
     for label, value in contact_rows:
-        row_h = 25
+        row_h = 29
 
         def render_row(y_top, label=label, value=value, row_h=row_h):
             base = baseline_of(y_top, row_h)
-            value_txt = escape_xml(fit_text(value, info_w - 16 - LABEL_COL_W, 13))
+            value_txt = escape_xml(fit_text(value, info_w - 18 - LABEL_COL_W, 14.5))
             return (
                 f'<g>'
-                f'<circle cx="{info_x + 3}" cy="{base - 4}" r="3" class="live-dot" fill="{t["accent"]}"/>'
-                f'<text x="{info_x + 16}" y="{base}" font-size="10" letter-spacing="1" fill="{t["textMuted"]}">{escape_xml(label.upper())}</text>'
-                f'<text x="{info_x + 16 + LABEL_COL_W}" y="{base}" font-size="13" fill="{t["textPrimary"]}">{value_txt}</text>'
+                f'<circle cx="{info_x + 3.5}" cy="{base - 4.5}" r="3.5" class="live-dot" fill="{t["accent"]}"/>'
+                f'<text x="{info_x + 18}" y="{base}" font-size="11.5" letter-spacing="1" fill="{t["textMuted"]}">{escape_xml(label.upper())}</text>'
+                f'<text x="{info_x + 18 + LABEL_COL_W}" y="{base}" font-size="14.5" fill="{t["textPrimary"]}">{value_txt}</text>'
                 f'</g>'
             )
 
@@ -550,11 +554,11 @@ def build_svg(theme, data):
     line_count = len(ascii_lines)
     max_line_len = max(len(l) for l in ascii_lines)
 
-    # Reserve room inside the panel for the caption (top) and the ANSI
-    # colour strip (bottom); the portrait is centered in what's left.
+    # Reserve room inside the panel for the caption (top); the portrait is
+    # centered in what's left.
     caption_h = 40
-    strip_h = 44
-    ascii_avail_h = panel_h - caption_h - strip_h
+    bottom_pad = 20
+    ascii_avail_h = panel_h - caption_h - bottom_pad
     ascii_avail_w = panel_w - 28
 
     # The art was sampled for 2:1 tall monospace cells, so line-height must
@@ -573,16 +577,6 @@ def build_svg(theme, data):
     ascii_tspans = "".join(
         f'<tspan x="{ascii_x:.1f}" dy="{0 if i == 0 else round(ascii_line_height, 2)}">{escape_xml(line)}</tspan>'
         for i, line in enumerate(ascii_lines)
-    )
-
-    # neofetch-style ANSI palette strip, centered at the bottom of the panel
-    sq, sq_gap = 18, 8
-    strip_w = len(ANSI_STRIP) * sq + (len(ANSI_STRIP) - 1) * sq_gap
-    strip_x = panel_x + (panel_w - strip_w) / 2
-    strip_y = panel_bottom - 16 - sq
-    strip_svg = "".join(
-        f'<rect x="{strip_x + i * (sq + sq_gap):.1f}" y="{strip_y}" width="{sq}" height="{sq}" rx="4" fill="{c}"/>'
-        for i, c in enumerate(ANSI_STRIP)
     )
 
     blocks_svg = "\n  ".join(b["render"](b["yTop"]) for b in blocks)
@@ -632,17 +626,16 @@ def build_svg(theme, data):
   <circle cx="26" cy="{TITLE_H / 2 + 1}" r="6.5" fill="#ff5f56"/>
   <circle cx="48" cy="{TITLE_H / 2 + 1}" r="6.5" fill="#ffbd2e"/>
   <circle cx="70" cy="{TITLE_H / 2 + 1}" r="6.5" fill="#27c93f"/>
-  <text x="{W / 2}" y="{TITLE_H / 2 + 5.5}" text-anchor="middle" font-size="13" letter-spacing="0.5" fill="{t['textMuted']}">{escape_xml(config.get('githubUsername', 'me'))}@github: ~/profile — zsh</text>
+  <text x="{W / 2}" y="{TITLE_H / 2 + 5.5}" text-anchor="middle" font-size="13" letter-spacing="0.5" fill="{t['textMuted']}">{escape_xml(config.get('githubUsername', 'me'))}@github: ~/profile</text>
 
   <!-- ============ LEFT: ASCII ART PANEL ============ -->
   <rect x="{panel_x}" y="{panel_y}" width="{panel_w}" height="{panel_h}" rx="10" fill="{t['cardBg']}" stroke="{t['border']}" stroke-width="1"/>
-  <text x="{panel_x + 18}" y="{panel_y + 26}" font-size="12.5" fill="{t['textMuted']}">$ cat ascii_{theme}.txt <tspan fill="{t['accent']}">— ok</tspan></text>
+  <text x="{panel_x + 18}" y="{panel_y + 27}" font-size="13.5" fill="{t['textMuted']}">$ cat ascii_{theme}.txt <tspan fill="{t['accent']}">— ok</tspan></text>
   <g clip-path="url(#asciiClip-{theme})">
     <text x="{ascii_x:.1f}" y="{ascii_text_y:.1f}" xml:space="preserve" font-size="{ascii_font_size:.2f}" letter-spacing="0" fill="url(#asciiFade-{theme})">{ascii_tspans}</text>
     <rect class="scanline" x="{panel_x}" y="{panel_y}" width="{panel_w}" height="{round(panel_h * 0.1)}" fill="url(#scanGrad-{theme})"/>
     <rect x="{panel_x}" y="{panel_y}" width="{panel_w}" height="{panel_h}" filter="url(#grain-{theme})"/>
   </g>
-  {strip_svg}
 
   <line x1="{divider_x}" y1="{panel_y + 8}" x2="{divider_x}" y2="{panel_bottom - 8}" stroke="{t['border']}" stroke-width="1"/>
 

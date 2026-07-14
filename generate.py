@@ -46,13 +46,14 @@ with open(os.path.join(HERE, "ascii_dark.txt"), "r", encoding="utf-8") as f:
 # ---------------------------------------------------------------------------
 # 1. AGE / "UPTIME" — computed fresh every time this script runs
 # ---------------------------------------------------------------------------
-def age_parts(birth_iso, now=None):
+def duration_parts(start_dt, now=None):
+    """y/m/d/totalDays between start_dt and now — reused for both DOB age
+    and GitHub account age."""
     now = now or datetime.now()
-    birth = datetime.strptime(birth_iso, "%Y-%m-%d")
 
-    y = now.year - birth.year
-    m = now.month - birth.month
-    d = now.day - birth.day
+    y = now.year - start_dt.year
+    m = now.month - start_dt.month
+    d = now.day - start_dt.day
 
     if d < 0:
         m -= 1
@@ -66,14 +67,28 @@ def age_parts(birth_iso, now=None):
         y -= 1
         m += 12
 
-    total_days = (now - birth).days
-    #return {"y": y, "m": m, "d": d, "totalDays": total_days}
-    return {"y": y, "m": m, "d": d}
+    total_days = (now - start_dt).days
+    return {"y": y, "m": m, "d": d, "totalDays": total_days}
 
 
-age = age_parts(config["birthDate"])
+def account_age_fields(created_iso, has_time=True):
+    """Given an ISO date (GitHub createdAt, e.g. 2019-06-01T12:00:00Z) or a
+    plain YYYY-MM-DD fallback date, return formatted account-age fields."""
+    if has_time:
+        created_dt = datetime.strptime(created_iso, "%Y-%m-%dT%H:%M:%SZ")
+    else:
+        created_dt = datetime.strptime(created_iso, "%Y-%m-%d")
+    parts = duration_parts(created_dt)
+    return {
+        "accountCreated": created_dt.strftime("%b %d, %Y"),
+        "accountAge": f'{parts["y"]}y {parts["m"]}m {parts["d"]}d',
+        "accountAgeDays": f'{parts["totalDays"]:,} days',
+    }
+
+
+age = duration_parts(datetime.strptime(config["birthDate"], "%Y-%m-%d"))
 uptime_string = f'{age["y"]}y {age["m"]}m {age["d"]}d'
-#uptime_days_string = f'{age["totalDays"]:,} days alive'
+uptime_days_string = f'{age["totalDays"]:,} days alive'
 
 
 # ---------------------------------------------------------------------------
@@ -84,13 +99,22 @@ def fetch_github_stats(username):
     token = os.environ.get("GITHUB_TOKEN")
     fallback = config["statsFallback"]
 
+    def with_fallback_account_age(result):
+        # Account age is still *calculated*, just from a fallback creation
+        # date (statsFallback.accountCreated in config.json) since we have
+        # no API access to ask GitHub for the real one.
+        fallback_created = fallback.get("accountCreated")
+        if fallback_created:
+            result = {**result, **account_age_fields(fallback_created, has_time=False)}
+        return result
+
     if not token or not username:
         print("[generate.py] No GITHUB_TOKEN/githubUsername set — using statsFallback dummy numbers.")
-        return {**fallback, "source": "fallback"}
+        return with_fallback_account_age({**fallback, "source": "fallback"})
 
     if requests is None:
         print("[generate.py] 'requests' package not installed — using statsFallback dummy numbers.")
-        return {**fallback, "source": "fallback"}
+        return with_fallback_account_age({**fallback, "source": "fallback"})
 
     gql_headers = {
         "Authorization": f"bearer {token}",
@@ -101,6 +125,7 @@ def fetch_github_stats(username):
         query = """
       query($login: String!) {
         user(login: $login) {
+          createdAt
           followers { totalCount }
           following { totalCount }
           repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
@@ -177,7 +202,7 @@ def fetch_github_stats(username):
                     # skip repo on error, best-effort
                     pass
 
-        return {
+        result = {
             "contributions": f"{contributions:,}",
             "commits": f"{commits:,}",
             "stars": f"{stars:,}",
@@ -188,9 +213,13 @@ def fetch_github_stats(username):
             "profileViews": fallback["profileViews"],  # see USAGE.md — GitHub has no official API for this
             "source": "live",
         }
+        # GitHub account age — calculated fresh every run from the real
+        # createdAt timestamp GitHub returns, no manual date needed.
+        result.update(account_age_fields(user["createdAt"], has_time=True))
+        return result
     except Exception as err:
         print(f"[generate.py] GitHub API fetch failed, using fallback numbers: {err}")
-        return {**fallback, "source": "fallback"}
+        return with_fallback_account_age({**fallback, "source": "fallback"})
 
 
 # ---------------------------------------------------------------------------
@@ -337,6 +366,53 @@ def build_svg(theme, data):
 
         push(height, render)
 
+    def wrap_items(label, items, size, total_px_width):
+        """Greedy-pack comma-separated items into lines that fit
+        total_px_width, so a long list wraps instead of getting cut off
+        with '…'."""
+        max_chars = max_chars_for(total_px_width, size)
+        label_chars = len(label) + 2  # "Label: "
+        first_line_budget = max(4, max_chars - label_chars)
+
+        lines = []
+        current = ""
+        budget = first_line_budget
+        for item in items:
+            candidate = f"{current}, {item}" if current else item
+            if len(candidate) <= budget:
+                current = candidate
+            else:
+                if current:
+                    lines.append(current)
+                current = item
+                budget = max_chars  # every line after the first uses full width
+        if current:
+            lines.append(current)
+        return lines or [""]
+
+    def labeled_wrapped_line(label, items, size, line_height):
+        lines = wrap_items(label, items, size, info_w)
+        height = line_height * len(lines)
+
+        def render(y_top, lines=lines, label=label, size=size, line_height=line_height):
+            parts = []
+            for i, line_text in enumerate(lines):
+                baseline = baseline_of(y_top + line_height * i, line_height)
+                if i == 0:
+                    parts.append(
+                        f'<text x="{info_x}" y="{baseline}" font-size="{size}">'
+                        f'<tspan fill="{t["accent2"]}">{escape_xml(label)}: </tspan>'
+                        f'<tspan fill="{t["textPrimary"]}">{escape_xml(line_text)}</tspan></text>'
+                    )
+                else:
+                    parts.append(
+                        f'<text x="{info_x}" y="{baseline}" font-size="{size}" '
+                        f'fill="{t["textPrimary"]}">{escape_xml(line_text)}</text>'
+                    )
+            return "\n      ".join(parts)
+
+        push(height, render)
+
     # name / role / tagline
     text_line(config["name"], 27, t["textPrimary"], 36, weight=700)
 
@@ -355,9 +431,10 @@ def build_svg(theme, data):
     divider(16)
 
     # languages / speaks / hobbies
-    labeled_line("Languages", ", ".join(config["languagesProgramming"]), 12.5, 19)
-    labeled_line("Speaks", ", ".join(config["languagesSpoken"]), 12.5, 19)
-    labeled_line("Hobbies", ", ".join(config["hobbies"]), 12.5, 19)
+    labeled_wrapped_line("Languages", config["languagesProgramming"], 12.5, 18)
+    labeled_wrapped_line("Tech Stack", config["techStack"], 12.5, 18)
+    labeled_wrapped_line("Speaks", config["languagesSpoken"], 12.5, 18)
+    labeled_wrapped_line("Hobbies", config["hobbies"], 12.5, 18)
     divider(16)
 
     # live status block
@@ -368,8 +445,14 @@ def build_svg(theme, data):
         )
 
     push(17, render_status_header)
-    #labeled_line("Age", f"{uptime_string} \u00b7 {uptime_days_string}", 12.5, 18)
-    labeled_line("Age", f"{uptime_string}", 12.5, 18)
+    labeled_line("Age", f"{uptime_string} \u00b7 {uptime_days_string}", 12.5, 18)
+    if data.get("accountAge"):
+        labeled_line(
+            "GitHub age",
+            f'{data["accountAge"]} \u00b7 since {data.get("accountCreated", "\u2014")}',
+            12.5,
+            18,
+        )
     labeled_line("Contributions (yr)", data["contributions"], 12.5, 18)
     labeled_line("Profile views", data["profileViews"], 12.5, 18)
     labeled_line("Total commits", data["commits"], 12.5, 18)
@@ -535,8 +618,7 @@ def main():
         f.write(build_svg("light", data))
 
     print("[generate.py] Wrote dist/profile-card-dark.svg and dist/profile-card-light.svg")
-    #print(f"[generate.py] Uptime: {uptime_string} ({uptime_days_string})")
-    print(f"[generate.py] Uptime: {uptime_string}")
+    print(f"[generate.py] Uptime: {uptime_string} ({uptime_days_string})")
     print(f"[generate.py] Stats source: {data['source']}")
 
 

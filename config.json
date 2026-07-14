@@ -9,6 +9,7 @@
   "birthDate": "2004-09-23",
 
   "languagesProgramming": ["Python", "JavaScript", "TypeScript", "C++"],
+  "techStack": ["Python", "LangChain", "LangGraph", "AWS", "RAG", "FastAPI", "PostgreSQL", "Docker"],
   "languagesSpoken": ["English", "Hindi", "Telugu"],
   "hobbies": ["OSS contributions", "coding", "reading", "gaming"],
 

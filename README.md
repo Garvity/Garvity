@@ -48,7 +48,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://streak-stats.demolab.com?user=garvity&theme=dark&hide_border=true&background=0d1117&ring=39ff88&fire=ffb454&currStreakLabel=39ff88">
-  <img src="https://streak-stats.demolab.com?user=garvity&hide_border=true" alt="GitHub streak" height="280">
+  <img src="https://streak-stats.demolab.com?user=garvity&hide_border=true" alt="GitHub streak" height="250">
 </picture>
 
 <br><br>
@@ -59,7 +59,7 @@
 <p align="center">
   <img
     src="https://github-readme-stats-eight-theta.vercel.app/api/top-langs/?username=garvity&layout=compact&hide_border=true&bg_color=0D1117&title_color=39ff88&text_color=C9D1D9&custom_title=Most+Used+Languages"
-    width="80%"
+    width="70%"
     alt="Most Used Languages"
   />
 </p>

@@ -16,11 +16,11 @@
 
 <p align="center">
   <a href="https://github.com/garvity?tab=followers">
-    <img src="https://img.shields.io/github/followers/garvity?label=FOLLOWERS&style=for-the-badge&color=39FF14&labelColor=0D1117&logo=github&logoColor=39FF14" alt="GitHub Followers" />
+    <img src="https://img.shields.io/github/followers/garvity?label=FOLLOWERS&style=for-the-badge&color=0d1117&labelColor=0a0a0a&logo=github&logoColor=39FF14" alt="GitHub Followers" />
   </a>
   &nbsp;&nbsp;
   <a href="https://github.com/garvity">
-    <img src="https://komarev.com/ghpvc/?username=garvity&style=for-the-badge&color=39FF14&labelColor=0D1117&label=PROFILE+VIEWS" alt="Profile Views" />
+    <img src="https://komarev.com/ghpvc/?username=garvity&style=for-the-badge&color=0d1117&labelColor=0a0a0a&label=PROFILE+VIEWS" alt="Profile Views" />
   </a>
 </p>
 <br><br>
@@ -49,12 +49,11 @@
 
 <p align="center">
   <img
-    src="https://github-readme-stats-eight-theta.vercel.app/api/top-langs/?username=kushal-soni-official&layout=compact&hide_border=true&bg_color=0D1117&title_color=2F80ED&text_color=C9D1D9&custom_title=Most+Used+Languages"
+    src="https://github-readme-stats-eight-theta.vercel.app/api/top-langs/?username=garvity&layout=compact&hide_border=true&bg_color=0D1117&title_color=39FF14&text_color=C9D1D9&custom_title=Most+Used+Languages"
     width="80%"
     alt="Most Used Languages"
   />
 </p>
-
 <br><br>
 
 <!-- ============ CONTRIBUTION GRAPH ============ -->

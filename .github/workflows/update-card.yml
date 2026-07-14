@@ -33,9 +33,9 @@ jobs:
         env:
           # A token with at least "read:user" and "public_repo" (classic PAT)
           # scope. Store it as a repo secret named PROFILE_TOKEN — the
-          # default GITHUB_TOKEN provided by Actions cannot read your
+          # default PROFILE_TOKEN provided by Actions cannot read your
           # profile's contribution/follower data.
-          GITHUB_TOKEN: ${{ secrets.PROFILE_TOKEN }}
+          PROFILE_TOKEN: ${{ secrets.PROFILE_TOKEN }}
         run: python generate.py
 
       - name: Commit if changed

@@ -23,6 +23,7 @@
     <img src="https://komarev.com/ghpvc/?username=garvity&style=for-the-badge&color=39FF14&labelColor=0D1117&label=PROFILE+VIEWS" alt="Profile Views" />
   </a>
 </p>
+<br><br>
 
 <!-- ============ TECH STACK ============ -->
 ## 🛠️ Tech Stack
@@ -48,7 +49,7 @@
 
 <p align="center">
   <img
-    src="https://github-readme-stats.vercel.app/api/top-langs/?username=garvity&layout=compact&hide_border=true&bg_color=0D1117&title_color=39FF14&text_color=7CFC00&custom_title=Most+Used+Languages"
+    src="https://github-readme-stats-eight-theta.vercel.app/api/top-langs/?username=kushal-soni-official&layout=compact&hide_border=true&bg_color=0D1117&title_color=2F80ED&text_color=C9D1D9&custom_title=Most+Used+Languages"
     width="80%"
     alt="Most Used Languages"
   />

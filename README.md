@@ -9,6 +9,21 @@
 
 <br><br>
 
+<!-- ▓▓▓ TAGLINE TYPING ANIMATION ▓▓▓ -->
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=24&duration=2000&pause=900&color=39FF88&center=true&vCenter=true&multiline=false&width=950&height=60&lines=%3E+Hi+%F0%9F%91%8B,+I'm+Garv;%3E+B.Tech+CSE+Graduate;%3E+AI%2FML+Engineer;%3E+Agentic+AI+%26+LLM+Applications;%3E+RAG+%E2%80%A2+AI+Agents+%E2%80%A2+Vector+Databases;%3E+Python+%E2%80%A2+FastAPI+%E2%80%A2+LangChain+%E2%80%A2+Qdrant;%3E+Open+to+AI%2FML+%26+GenAI+Opportunities" alt="Typing SVG" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/garvity?tab=followers">
+    <img src="https://img.shields.io/github/followers/garvity?label=FOLLOWERS&style=for-the-badge&color=39FF14&labelColor=0D1117&logo=github&logoColor=39FF14" alt="GitHub Followers" />
+  </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/garvity">
+    <img src="https://komarev.com/ghpvc/?username=garvity&style=for-the-badge&color=39FF14&labelColor=0D1117&label=PROFILE+VIEWS" alt="Profile Views" />
+  </a>
+</p>
+
 <!-- ============ TECH STACK ============ -->
 ## 🛠️ Tech Stack
 
@@ -19,15 +34,11 @@
 <br><br>
 
 <!-- ============ GITHUB STATS + STREAK ============ -->
-## 📊 GitHub Stats
+## 📊 GitHub Live Stats & Streak
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api?username=garvity&show_icons=true&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=39ff88&icon_color=ffb454&count_private=true&include_all_commits=true">
-  <img src="https://github-readme-stats.vercel.app/api?username=garvity&show_icons=true&theme=default&hide_border=true&count_private=true&include_all_commits=true" alt="GitHub stats" height="170">
-</picture>
-<picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://streak-stats.demolab.com?user=garvity&theme=dark&hide_border=true&background=0d1117&ring=39ff88&fire=ffb454&currStreakLabel=39ff88">
-  <img src="https://streak-stats.demolab.com?user=garvity&hide_border=true" alt="GitHub streak" height="170">
+  <img src="https://streak-stats.demolab.com?user=garvity&hide_border=true" alt="GitHub streak" height="280">
 </picture>
 
 <br><br>
@@ -35,10 +46,13 @@
 <!-- ============ MOST USED LANGUAGES ============ -->
 ## 💬 Most Used Languages
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://github-readme-stats.vercel.app/api/top-langs/?username=garvity&layout=compact&theme=github_dark&hide_border=true&bg_color=0d1117&title_color=39ff88&langs_count=8">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=garvity&layout=compact&theme=default&hide_border=true&langs_count=8" alt="Most used languages" height="165">
-</picture>
+<p align="center">
+  <img
+    src="https://github-readme-stats.vercel.app/api/top-langs/?username=garvity&layout=compact&hide_border=true&bg_color=0D1117&title_color=39FF14&text_color=7CFC00&custom_title=Most+Used+Languages"
+    width="80%"
+    alt="Most Used Languages"
+  />
+</p>
 
 <br><br>
 

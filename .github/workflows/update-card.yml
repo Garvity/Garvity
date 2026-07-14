@@ -9,7 +9,7 @@ on:
   push:
     paths:
       - "config.json"
-      - "generate.js"
+      - "generate.py"
       - "ascii_dark.txt"
 
 permissions:
@@ -21,17 +21,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: "20"
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests --break-system-packages
 
       - name: Generate updated card
         env:
-          # A token with at least "read:user" and "repo" scope. Store it as
-          # a repo secret named GITHUB_TOKEN_RO (the default GITHUB_TOKEN
-          # provided by Actions cannot read your profile's contribution data).
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_RO }}
-        run: node generate.js
+          # A token with at least "read:user" and "public_repo" (classic PAT)
+          # scope. Store it as a repo secret named PROFILE_TOKEN — the
+          # default GITHUB_TOKEN provided by Actions cannot read your
+          # profile's contribution/follower data.
+          GITHUB_TOKEN: ${{ secrets.PROFILE_TOKEN }}
+        run: python generate.py
 
       - name: Commit if changed
         run: |

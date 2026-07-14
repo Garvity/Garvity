@@ -1,0 +1,32 @@
+{
+  "_comment": "Replace every value below with your real info. Nothing here is fetched automatically except the fields under 'stats' when GITHUB_TOKEN + githubUsername are set in the environment (see USAGE.md).",
+
+  "name": "Garv R Changrani",
+  "role": "AI/ML Engineer",
+  "tagline": "Building things that (mostly) work on the first try.",
+  "githubUsername": "garvity",
+
+  "birthDate": "2004-09-23",
+
+  "languagesProgramming": ["Python", "JavaScript", "TypeScript", "C++"],
+  "languagesSpoken": ["English", "Hindi", "Telugu"],
+  "hobbies": ["OSS contributions", "coding", "reading", "gaming"],
+
+  "contact": {
+    "email": "garvity375@gmail.com",
+    "linkedin": "linkedin.com/in/garvrc",
+    "githubUrl": "github.com/garvity",
+    "website": "garvrc-portfolio.vercel.app"
+  },
+
+  "statsFallback": {
+    "contributions": "421",
+    "commits": "126",
+    "stars": "2",
+    "followers": "2",
+    "linesAdded": "5,342",
+    "linesDeleted": "2,134",
+    "profileViews": "890",
+    "following": "1"
+  }
+}

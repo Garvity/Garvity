@@ -11,6 +11,7 @@ on:
       - "config.json"
       - "generate.py"
       - "ascii_dark.txt"
+      - "ascii_light.txt"
 
 permissions:
   contents: write

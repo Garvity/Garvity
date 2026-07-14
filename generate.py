@@ -15,7 +15,7 @@ do consistently once GitHub's camo proxy re-hosts the image):
 Run locally:
    python generate.py
 
-Run in CI (see .github/workflows/update-readme.yml):
+Run in CI (see .github/workflows/update-card.yml):
    GITHUB_TOKEN=xxxx python generate.py
 
 All personal info lives in config.json. Nothing here needs editing
@@ -39,8 +39,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 with open(os.path.join(HERE, "config.json"), "r", encoding="utf-8") as f:
     config = json.load(f)
 
-with open(os.path.join(HERE, "ascii_dark.txt"), "r", encoding="utf-8") as f:
-    ascii_raw = f.read()
+# Each theme gets its own ASCII art: the light file inverts the brightness
+# ramp so the portrait reads correctly on a white background.
+ASCII_ART = {}
+for _theme in ("dark", "light"):
+    with open(os.path.join(HERE, f"ascii_{_theme}.txt"), "r", encoding="utf-8") as f:
+        ASCII_ART[_theme] = f.read()
 
 
 # ---------------------------------------------------------------------------
@@ -80,15 +84,14 @@ def account_age_fields(created_iso, has_time=True):
         created_dt = datetime.strptime(created_iso, "%Y-%m-%d")
     parts = duration_parts(created_dt)
     return {
-        "accountCreated": created_dt.strftime("%b %d, %Y"),
-        "accountAge": f'{parts["y"]}y {parts["m"]}m {parts["d"]}d',
+        "accountCreated": created_dt.strftime("%b %Y"),
+        "accountAge": f'{parts["y"]}y {parts["m"]}m',
         "accountAgeDays": f'{parts["totalDays"]:,} days',
     }
 
 
 age = duration_parts(datetime.strptime(config["birthDate"], "%Y-%m-%d"))
 uptime_string = f'{age["y"]}y {age["m"]}m {age["d"]}d'
-uptime_days_string = f'{age["totalDays"]:,} days alive'
 
 
 # ---------------------------------------------------------------------------
@@ -130,16 +133,7 @@ def fetch_github_stats(username):
           following { totalCount }
           repositories(first: 100, ownerAffiliations: OWNER, isFork: false) {
             totalCount
-            nodes {
-              stargazerCount
-              defaultBranchRef {
-                target {
-                  ... on Commit {
-                    history(author: { id: "me" }) { totalCount }
-                  }
-                }
-              }
-            }
+            nodes { stargazerCount }
           }
           contributionsCollection {
             contributionCalendar { totalContributions }
@@ -268,10 +262,11 @@ def fit_labeled_value(label, value, total_px_width, font_size):
 THEMES = {
     "dark": {
         "bg": "#0d1117",
-        "cardBg": "#11161d",
-        "border": "#27303b",
+        "titleBg": "#161b22",
+        "cardBg": "#10151c",
+        "border": "#30363d",
         "textPrimary": "#e6edf3",
-        "textMuted": "#7d8590",
+        "textMuted": "#8b949e",
         "accent": "#39ff88",  # phosphor green
         "accent2": "#ffb454",  # amber
         "danger": "#ff6b6b",
@@ -281,8 +276,9 @@ THEMES = {
         "grainOpacity": 0.05,
     },
     "light": {
-        "bg": "#f6f8fa",
-        "cardBg": "#ffffff",
+        "bg": "#ffffff",
+        "titleBg": "#eef1f4",
+        "cardBg": "#f6f8fa",
         "border": "#d0d7de",
         "textPrimary": "#1f2328",
         "textMuted": "#57606a",
@@ -296,6 +292,9 @@ THEMES = {
     },
 }
 
+# Classic terminal ANSI palette strip shown under the portrait (neofetch-style).
+ANSI_STRIP = ["#ff5f56", "#ffbd2e", "#27c93f", "#58a6ff", "#bc8cff", "#39c5cf", "#f778ba", "#8b949e"]
+
 
 # ---------------------------------------------------------------------------
 # 5. SVG BUILDER
@@ -305,19 +304,21 @@ def build_svg(theme, data):
     W = 1000
 
     # ---- fixed geometry -------------------------------------------------
-    OUTER_PAD = 24  # margin around the whole card
-    INNER_PAD = 22  # padding inside the card
-    GAP = 46  # gap between ascii column and info column
-    ASCII_COL_W = 420  # fixed width budget for the ascii column
-    info_x = OUTER_PAD + INNER_PAD + ASCII_COL_W + GAP
-    info_right = W - OUTER_PAD - INNER_PAD
+    TITLE_H = 46  # terminal title bar
+    PAD = 28  # padding inside the window (same on all four sides)
+    GAP = 34  # gap between ascii panel and info column
+    ASCII_COL_W = 548  # fixed width budget for the ascii panel
+    RADIUS = 14
+
+    info_x = PAD + ASCII_COL_W + GAP
+    info_right = W - PAD
     info_w = info_right - info_x
 
     # ---- 1) lay out the right (info) column first, top to bottom --------
     # Every pushed item knows its own height, so the column height is
     # whatever the real content needs — nothing is hardcoded, so nothing
     # can silently overlap or run off the bottom.
-    state = {"y": OUTER_PAD + INNER_PAD}
+    state = {"y": TITLE_H + PAD}
     blocks = []
 
     # Every block gets a baseline computed from its OWN height/font-size
@@ -362,6 +363,15 @@ def build_svg(theme, data):
             return (
                 f'<line x1="{info_x}" y1="{y_top + height / 2}" x2="{info_right}" '
                 f'y2="{y_top + height / 2}" stroke="{t["border"]}" stroke-width="1"/>'
+            )
+
+        push(height, render)
+
+    def section_header(text_svg, height=24, size=12):
+        def render(y_top, text_svg=text_svg, height=height, size=size):
+            return (
+                f'<text x="{info_x}" y="{baseline_of(y_top, height)}" font-size="{size}" '
+                f'letter-spacing="1" fill="{t["accent2"]}">{text_svg}</text>'
             )
 
         push(height, render)
@@ -413,143 +423,171 @@ def build_svg(theme, data):
 
         push(height, render)
 
-    # name / role / tagline
-    text_line(config["name"], 27, t["textPrimary"], 36, weight=700)
+    # shell prompt line, then name / role / tagline
+    def render_prompt(y_top):
+        user_host = f'{config.get("githubUsername", "me")}@github'
+        return (
+            f'<text x="{info_x}" y="{baseline_of(y_top, 24)}" font-size="13">'
+            f'<tspan fill="{t["textMuted"]}">{escape_xml(user_host)}</tspan>'
+            f'<tspan fill="{t["accent"]}">:~$</tspan>'
+            f'<tspan fill="{t["textPrimary"]}"> neofetch --profile</tspan></text>'
+        )
+
+    push(24, render_prompt)
+
+    text_line(config["name"], 30, t["textPrimary"], 42, weight=700)
 
     def render_role(y_top):
-        role_text = escape_xml(fit_text(config["role"], info_w - 20, 14))
+        role_text = escape_xml(fit_text(config["role"], info_w - 24, 17))
         return (
-            f'<text x="{info_x}" y="{baseline_of(y_top, 22)}" font-size="14">'
+            f'<text x="{info_x}" y="{baseline_of(y_top, 27)}" font-size="17">'
             f'<tspan fill="{t["accent"]}">&gt; {role_text} </tspan>'
-            f'<tspan class="cursor" fill="{t["accent"]}">\u2588</tspan></text>'
+            f'<tspan class="cursor" fill="{t["accent"]}">█</tspan></text>'
         )
 
-    push(22, render_role)
+    push(27, render_role)
 
     if config.get("tagline"):
-        text_line(config["tagline"], 11, t["textMuted"], 20)
-    divider(16)
+        # word-wrap the tagline (up to 2 lines) instead of truncating it
+        TAG_FS = 12.5
+        budget = max_chars_for(info_w, TAG_FS)
+        tag_lines = [""]
+        for word in config["tagline"].split():
+            candidate = f"{tag_lines[-1]} {word}".strip()
+            if len(candidate) <= budget:
+                tag_lines[-1] = candidate
+            else:
+                tag_lines.append(word)
+        for line in tag_lines[:2]:
+            text_line(line, TAG_FS, t["textMuted"], 21)
+    divider(20)
 
     # languages / speaks / hobbies
-    labeled_wrapped_line("Languages", config["languagesProgramming"], 12.5, 18)
-    labeled_wrapped_line("Tech Stack", config["techStack"], 12.5, 18)
-    labeled_wrapped_line("Speaks", config["languagesSpoken"], 12.5, 18)
-    labeled_wrapped_line("Hobbies", config["hobbies"], 12.5, 18)
-    divider(16)
+    BODY_FS = 16
+    BODY_LH = 24
+    labeled_wrapped_line("Languages", config["languagesProgramming"], BODY_FS, BODY_LH)
+    labeled_wrapped_line("Tech Stack", config["techStack"], BODY_FS, BODY_LH)
+    labeled_wrapped_line("Speaks", config["languagesSpoken"], BODY_FS, BODY_LH)
+    labeled_wrapped_line("Hobbies", config["hobbies"], BODY_FS, BODY_LH)
+    divider(20)
 
     # live status block
-    def render_status_header(y_top):
-        return (
-            f'<text x="{info_x}" y="{baseline_of(y_top, 17)}" font-size="11" fill="{t["accent2"]}">'
-            f'// live status <tspan fill="{t["textMuted"]}">(auto-refreshed by CI)</tspan></text>'
-        )
-
-    push(17, render_status_header)
-    labeled_line("Age", f"{uptime_string} \u00b7 {uptime_days_string}", 12.5, 18)
+    section_header(f'// live status <tspan fill="{t["textMuted"]}" letter-spacing="0">(auto-refreshed by CI)</tspan>')
+    labeled_line("Age", uptime_string, BODY_FS, BODY_LH)
     if data.get("accountAge"):
         labeled_line(
             "GitHub age",
-            f'{data["accountAge"]} \u00b7 since {data.get("accountCreated", "\u2014")}',
-            12.5,
-            18,
+            f'{data["accountAge"]} · joined {data.get("accountCreated", "—")}',
+            BODY_FS,
+            BODY_LH,
         )
-    labeled_line("Contributions (yr)", data["contributions"], 12.5, 18)
-    labeled_line("Profile views", data["profileViews"], 12.5, 18)
-    labeled_line("Total commits", data["commits"], 12.5, 18)
-    labeled_line("Stars earned", data["stars"], 12.5, 18)
-    labeled_line("Followers / Following", f'{data["followers"]} / {data.get("following") or "\u2014"}', 12.5, 18)
+    labeled_line("Contributions (yr)", data["contributions"], BODY_FS, BODY_LH)
+    labeled_line("Profile views", data["profileViews"], BODY_FS, BODY_LH)
+    labeled_line("Total commits", data["commits"], BODY_FS, BODY_LH)
+    labeled_line("Stars earned", data["stars"], BODY_FS, BODY_LH)
+    labeled_line("Followers / Following", f'{data["followers"]} / {data.get("following") or "—"}', BODY_FS, BODY_LH)
 
     def render_lines_changed(y_top):
-        added_txt = escape_xml(fit_text(str(data["linesAdded"]), info_w / 2 - 40, 12.5))
-        deleted_txt = escape_xml(fit_text(str(data["linesDeleted"]), info_w / 2 - 40, 12.5))
+        added_txt = escape_xml(fit_text(str(data["linesAdded"]), info_w / 2 - 40, BODY_FS))
+        deleted_txt = escape_xml(fit_text(str(data["linesDeleted"]), info_w / 2 - 40, BODY_FS))
         return (
-            f'<text x="{info_x}" y="{baseline_of(y_top, 18)}" font-size="12.5">'
+            f'<text x="{info_x}" y="{baseline_of(y_top, BODY_LH)}" font-size="{BODY_FS}">'
             f'<tspan fill="{t["accent2"]}">Lines changed: </tspan>'
             f'<tspan fill="{t["accent"]}">+{added_txt}</tspan>'
             f'<tspan fill="{t["textMuted"]}"> / </tspan>'
             f'<tspan fill="{t["danger"]}">-{deleted_txt}</tspan></text>'
         )
 
-    push(18, render_lines_changed)
-    divider(16)
+    push(BODY_LH, render_lines_changed)
+    divider(20)
 
-    # contact — folded into the same column, 2 items per row so long
-    # handles/urls each get their own half-width budget and can't collide.
-    def render_contact_header(y_top):
-        return (
-            f'<text x="{info_x}" y="{baseline_of(y_top, 15)}" font-size="11" fill="{t["accent2"]}">'
-            f"$ cat contact.sh</text>"
-        )
+    # contact — one full-width row per entry (pulsing dot + fixed-width
+    # label + value), so even long handles/urls never get truncated.
+    section_header("$ cat contact.sh", height=22)
 
-    push(15, render_contact_header)
-
-    col_w = (info_w - 24) / 2
-    col2_x = info_x + col_w + 24
-    contact = config["contact"]
-    contact_pairs = [
-        ("Email", contact.get("email")),
-        ("LinkedIn", contact.get("linkedin")),
-        ("GitHub", contact.get("githubUrl")),
-        # ("Twitter / X", contact.get("twitter")),
-        ("Website", contact.get("website")),
-        ("Status", "open to work"),
+    contact = config.get("contact", {})
+    contact_rows = [
+        (label, value)
+        for label, value in [
+            ("Email", contact.get("email")),
+            ("LinkedIn", contact.get("linkedin")),
+            ("GitHub", contact.get("githubUrl")),
+            ("Website", contact.get("website")),
+            ("Status", "open to work"),
+        ]
+        if value  # a missing config field just drops the entry
     ]
 
-    for i in range(0, len(contact_pairs), 2):
-        row_h = 32
-        label_a, value_a = contact_pairs[i]
-        label_b, value_b = contact_pairs[i + 1] if i + 1 < len(contact_pairs) else (None, None)
+    LABEL_COL_W = 96  # px reserved for the uppercase label
+    for label, value in contact_rows:
+        row_h = 25
 
-        def render_row(y_top, label_a=label_a, value_a=value_a, label_b=label_b, value_b=value_b, row_h=row_h):
-            label_y = y_top + 12
-            value_y = y_top + 26
-            part_b = ""
-            if label_b:
-                value_b_txt = escape_xml(fit_text(value_b, col_w - 12, 11.5))
-                part_b = f"""
-        <circle cx="{col2_x + 3}" cy="{label_y - 3}" r="3" class="live-dot" fill="{t['accent']}"/>
-        <text x="{col2_x + 12}" y="{label_y}" font-size="9" letter-spacing="0.5" fill="{t['textMuted']}">{escape_xml(label_b.upper())}</text>
-        <text x="{col2_x + 12}" y="{value_y}" font-size="11.5" fill="{t['textPrimary']}">{value_b_txt}</text>"""
-            value_a_txt = escape_xml(fit_text(value_a, col_w - 12, 11.5))
-            return f"""
-      <g>
-        <circle cx="{info_x + 3}" cy="{label_y - 3}" r="3" class="live-dot" fill="{t['accent']}"/>
-        <text x="{info_x + 12}" y="{label_y}" font-size="9" letter-spacing="0.5" fill="{t['textMuted']}">{escape_xml(label_a.upper())}</text>
-        <text x="{info_x + 12}" y="{value_y}" font-size="11.5" fill="{t['textPrimary']}">{value_a_txt}</text>
-        {part_b}
-      </g>"""
+        def render_row(y_top, label=label, value=value, row_h=row_h):
+            base = baseline_of(y_top, row_h)
+            value_txt = escape_xml(fit_text(value, info_w - 16 - LABEL_COL_W, 13))
+            return (
+                f'<g>'
+                f'<circle cx="{info_x + 3}" cy="{base - 4}" r="3" class="live-dot" fill="{t["accent"]}"/>'
+                f'<text x="{info_x + 16}" y="{base}" font-size="10" letter-spacing="1" fill="{t["textMuted"]}">{escape_xml(label.upper())}</text>'
+                f'<text x="{info_x + 16 + LABEL_COL_W}" y="{base}" font-size="13" fill="{t["textPrimary"]}">{value_txt}</text>'
+                f'</g>'
+            )
 
         push(row_h, render_row)
 
-    content_bottom = state["y"] + INNER_PAD  # bottom padding under the last item
-    card_h = content_bottom - OUTER_PAD
-    H = card_h + OUTER_PAD * 2
+    # Symmetric padding: the window ends exactly PAD below the last block.
+    content_bottom = state["y"]
+    H = content_bottom + PAD
 
-    # ---- 2) size the ascii block to exactly fill that same height -------
-    ascii_lines = [line for line in ascii_raw.replace("\r", "").split("\n") if line]
+    # ---- 2) the left panel spans the same vertical range as the info ----
+    panel_x = PAD
+    panel_y = TITLE_H + PAD
+    panel_w = ASCII_COL_W
+    panel_h = content_bottom - panel_y
+    panel_bottom = panel_y + panel_h
+
+    ascii_lines = [line.rstrip() for line in ASCII_ART[theme].replace("\r", "").split("\n") if line.strip()]
     line_count = len(ascii_lines)
     max_line_len = max(len(l) for l in ascii_lines)
-    ascii_avail_h = card_h - INNER_PAD * 2 - 14  # leave room for the caption line
-    ascii_avail_w = ASCII_COL_W - 16
-    lh_by_height = ascii_avail_h / line_count
+
+    # Reserve room inside the panel for the caption (top) and the ANSI
+    # colour strip (bottom); the portrait is centered in what's left.
+    caption_h = 40
+    strip_h = 44
+    ascii_avail_h = panel_h - caption_h - strip_h
+    ascii_avail_w = panel_w - 28
+
+    # The art was sampled for 2:1 tall monospace cells, so line-height must
+    # be 2 * char-width (= 1.2 * font-size) or the portrait gets squashed.
+    LH_RATIO = 2 * CHAR_WIDTH_FACTOR
     fs_by_width = ascii_avail_w / (max_line_len * CHAR_WIDTH_FACTOR)
-    ascii_font_size = min(lh_by_height / 1.15, fs_by_width, 11)  # never bigger than 11px, and never bigger than either budget allows
-    ascii_line_height = ascii_font_size * 1.15
+    fs_by_height = ascii_avail_h / (line_count * LH_RATIO)
+    ascii_font_size = min(fs_by_width, fs_by_height)
+    ascii_line_height = ascii_font_size * LH_RATIO
     ascii_block_h = ascii_line_height * line_count
-    ascii_x = OUTER_PAD + INNER_PAD + 8
-    ascii_box_y = OUTER_PAD + INNER_PAD
-    ascii_box_h = card_h - INNER_PAD * 2
-    ascii_text_y = ascii_box_y + (ascii_box_h - 14 - ascii_block_h) / 2 + ascii_font_size  # vertically centered, room left for caption
+    ascii_block_w = max_line_len * ascii_font_size * CHAR_WIDTH_FACTOR
+
+    ascii_x = panel_x + (panel_w - ascii_block_w) / 2
+    ascii_text_y = panel_y + caption_h + (ascii_avail_h - ascii_block_h) / 2 + ascii_font_size
 
     ascii_tspans = "".join(
-        f'<tspan x="{ascii_x}" dy="{0 if i == 0 else ascii_line_height}">{escape_xml(line)}</tspan>'
+        f'<tspan x="{ascii_x:.1f}" dy="{0 if i == 0 else round(ascii_line_height, 2)}">{escape_xml(line)}</tspan>'
         for i, line in enumerate(ascii_lines)
     )
 
-    ascii_clip_y = OUTER_PAD
-    ascii_clip_h = card_h
+    # neofetch-style ANSI palette strip, centered at the bottom of the panel
+    sq, sq_gap = 18, 8
+    strip_w = len(ANSI_STRIP) * sq + (len(ANSI_STRIP) - 1) * sq_gap
+    strip_x = panel_x + (panel_w - strip_w) / 2
+    strip_y = panel_bottom - 16 - sq
+    strip_svg = "".join(
+        f'<rect x="{strip_x + i * (sq + sq_gap):.1f}" y="{strip_y}" width="{sq}" height="{sq}" rx="4" fill="{c}"/>'
+        for i, c in enumerate(ANSI_STRIP)
+    )
 
     blocks_svg = "\n  ".join(b["render"](b["yTop"]) for b in blocks)
+
+    divider_x = panel_x + panel_w + GAP / 2
 
     svg = f"""<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{escape_xml(config['name'])} — developer profile card">
   <defs>
@@ -559,11 +597,14 @@ def build_svg(theme, data):
     </linearGradient>
     <linearGradient id="scanGrad-{theme}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="{t['scanColor']}" stop-opacity="0"/>
-      <stop offset="50%" stop-color="{t['scanColor']}" stop-opacity="0.55"/>
+      <stop offset="50%" stop-color="{t['scanColor']}" stop-opacity="0.35"/>
       <stop offset="100%" stop-color="{t['scanColor']}" stop-opacity="0"/>
     </linearGradient>
+    <clipPath id="cardClip-{theme}">
+      <rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="{RADIUS}"/>
+    </clipPath>
     <clipPath id="asciiClip-{theme}">
-      <rect x="{OUTER_PAD}" y="{ascii_clip_y}" width="{ASCII_COL_W + INNER_PAD * 2}" height="{ascii_clip_h}" rx="8"/>
+      <rect x="{panel_x}" y="{panel_y}" width="{panel_w}" height="{panel_h}" rx="10"/>
     </clipPath>
     <filter id="grain-{theme}">
       <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="noise"/>
@@ -576,24 +617,34 @@ def build_svg(theme, data):
     text {{ font-family: ui-monospace, SFMono-Regular, 'Cascadia Code', 'Fira Code', Menlo, Consolas, monospace; }}
     .cursor {{ animation: blink 1.1s steps(1) infinite; }}
     @keyframes blink {{ 0%, 49% {{ opacity: 1; }} 50%, 100% {{ opacity: 0; }} }}
-    .scanline {{ animation: scan 4.8s linear infinite; }}
-    @keyframes scan {{ 0% {{ transform: translateY(0); }} 100% {{ transform: translateY({ascii_clip_h}px); }} }}
+    .scanline {{ animation: scan 5.2s linear infinite; }}
+    @keyframes scan {{ 0% {{ transform: translateY(0); }} 100% {{ transform: translateY({panel_h}px); }} }}
     .live-dot {{ animation: pulse 1.6s ease-in-out infinite; transform-origin: center; }}
     @keyframes pulse {{ 0%, 100% {{ opacity: 1; }} 50% {{ opacity: 0.25; }} }}
   </style>
 
-  <rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="16" fill="{t['bg']}" stroke="{t['border']}" stroke-width="1.5"/>
-
-  <!-- ============ LEFT: ASCII ART ============ -->
-  <rect x="{OUTER_PAD}" y="{ascii_clip_y}" width="{ASCII_COL_W + INNER_PAD * 2}" height="{ascii_clip_h}" rx="8" fill="{t['cardBg']}" stroke="{t['border']}" stroke-width="1"/>
-  <g clip-path="url(#asciiClip-{theme})">
-    <text x="{ascii_x}" y="{ascii_text_y}" xml:space="preserve" font-size="{ascii_font_size:.2f}" letter-spacing="0.1" fill="url(#asciiFade-{theme})">{ascii_tspans}</text>
-    <rect class="scanline" x="{OUTER_PAD}" y="{ascii_clip_y}" width="{ASCII_COL_W + INNER_PAD * 2}" height="{round(ascii_clip_h * 0.11)}" fill="url(#scanGrad-{theme})"/>
-    <rect x="{OUTER_PAD}" y="{ascii_clip_y}" width="{ASCII_COL_W + INNER_PAD * 2}" height="{ascii_clip_h}" filter="url(#grain-{theme})"/>
+  <!-- ============ TERMINAL WINDOW ============ -->
+  <rect x="1" y="1" width="{W - 2}" height="{H - 2}" rx="{RADIUS}" fill="{t['bg']}" stroke="{t['border']}" stroke-width="1.5"/>
+  <g clip-path="url(#cardClip-{theme})">
+    <rect x="1" y="1" width="{W - 2}" height="{TITLE_H}" fill="{t['titleBg']}"/>
   </g>
-  <text x="{ascii_x}" y="{ascii_clip_y + ascii_clip_h - 10}" font-size="9.5" fill="{t['textMuted']}">$ file ascii_dark.png <tspan fill="{t['accent']}">— ok</tspan></text>
+  <line x1="1" y1="{TITLE_H + 1}" x2="{W - 1}" y2="{TITLE_H + 1}" stroke="{t['border']}" stroke-width="1"/>
+  <circle cx="26" cy="{TITLE_H / 2 + 1}" r="6.5" fill="#ff5f56"/>
+  <circle cx="48" cy="{TITLE_H / 2 + 1}" r="6.5" fill="#ffbd2e"/>
+  <circle cx="70" cy="{TITLE_H / 2 + 1}" r="6.5" fill="#27c93f"/>
+  <text x="{W / 2}" y="{TITLE_H / 2 + 5.5}" text-anchor="middle" font-size="13" letter-spacing="0.5" fill="{t['textMuted']}">{escape_xml(config.get('githubUsername', 'me'))}@github: ~/profile — zsh</text>
 
-  <line x1="{OUTER_PAD + ASCII_COL_W + INNER_PAD * 2 + GAP / 2}" y1="{ascii_clip_y + 10}" x2="{OUTER_PAD + ASCII_COL_W + INNER_PAD * 2 + GAP / 2}" y2="{ascii_clip_y + ascii_clip_h - 10}" stroke="{t['border']}" stroke-width="1"/>
+  <!-- ============ LEFT: ASCII ART PANEL ============ -->
+  <rect x="{panel_x}" y="{panel_y}" width="{panel_w}" height="{panel_h}" rx="10" fill="{t['cardBg']}" stroke="{t['border']}" stroke-width="1"/>
+  <text x="{panel_x + 18}" y="{panel_y + 26}" font-size="12.5" fill="{t['textMuted']}">$ cat ascii_{theme}.txt <tspan fill="{t['accent']}">— ok</tspan></text>
+  <g clip-path="url(#asciiClip-{theme})">
+    <text x="{ascii_x:.1f}" y="{ascii_text_y:.1f}" xml:space="preserve" font-size="{ascii_font_size:.2f}" letter-spacing="0" fill="url(#asciiFade-{theme})">{ascii_tspans}</text>
+    <rect class="scanline" x="{panel_x}" y="{panel_y}" width="{panel_w}" height="{round(panel_h * 0.1)}" fill="url(#scanGrad-{theme})"/>
+    <rect x="{panel_x}" y="{panel_y}" width="{panel_w}" height="{panel_h}" filter="url(#grain-{theme})"/>
+  </g>
+  {strip_svg}
+
+  <line x1="{divider_x}" y1="{panel_y + 8}" x2="{divider_x}" y2="{panel_bottom - 8}" stroke="{t['border']}" stroke-width="1"/>
 
   <!-- ============ RIGHT: INFO COLUMN (dynamically laid out) ============ -->
   {blocks_svg}
@@ -618,7 +669,7 @@ def main():
         f.write(build_svg("light", data))
 
     print("[generate.py] Wrote dist/profile-card-dark.svg and dist/profile-card-light.svg")
-    print(f"[generate.py] Uptime: {uptime_string} ({uptime_days_string})")
+    print(f"[generate.py] Uptime: {uptime_string}")
     print(f"[generate.py] Stats source: {data['source']}")
 
 

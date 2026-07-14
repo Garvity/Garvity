@@ -1,0 +1,42 @@
+name: Refresh profile card
+
+# Runs automatically on a schedule AND whenever you push a config change,
+# so you never have to hand-edit numbers in the SVG yourself.
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # every 6 hours — tighten to "*/30 * * * *" if you want it closer to real-time
+  workflow_dispatch:          # lets you trigger a refresh manually from the Actions tab
+  push:
+    paths:
+      - "config.json"
+      - "generate.js"
+      - "ascii_dark.txt"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate updated card
+        env:
+          # A token with at least "read:user" and "repo" scope. Store it as
+          # a repo secret named GITHUB_TOKEN_RO (the default GITHUB_TOKEN
+          # provided by Actions cannot read your profile's contribution data).
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_RO }}
+        run: node generate.js
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/profile-card-dark.svg dist/profile-card-light.svg
+          git diff --staged --quiet || git commit -m "chore: auto-refresh profile card [skip ci]"
+          git push

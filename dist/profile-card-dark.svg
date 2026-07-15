@@ -74,12 +74,12 @@
   <text x="610" y="478" font-size="13.5" letter-spacing="1" fill="#ffb454">// live status <tspan fill="#8b949e" letter-spacing="0">(auto-refreshed by CI)</tspan></text>
   <text x="610" y="502" font-size="16"><tspan fill="#ffb454">Age: </tspan><tspan fill="#e6edf3">21y 9m 22d</tspan></text>
   <text x="610" y="526" font-size="16"><tspan fill="#ffb454">Account age: </tspan><tspan fill="#e6edf3">2y 6m · joined Dec 2023</tspan></text>
-  <text x="610" y="550" font-size="16"><tspan fill="#ffb454">Contributions (yr): </tspan><tspan fill="#e6edf3">245</tspan></text>
+  <text x="610" y="550" font-size="16"><tspan fill="#ffb454">Contributions (yr): </tspan><tspan fill="#e6edf3">421</tspan></text>
   <text x="610" y="574" font-size="16"><tspan fill="#ffb454">Profile views: </tspan><tspan fill="#e6edf3">890</tspan></text>
-  <text x="610" y="598" font-size="16"><tspan fill="#ffb454">Total commits: </tspan><tspan fill="#e6edf3">202</tspan></text>
-  <text x="610" y="622" font-size="16"><tspan fill="#ffb454">Stars earned: </tspan><tspan fill="#e6edf3">0</tspan></text>
+  <text x="610" y="598" font-size="16"><tspan fill="#ffb454">Total commits: </tspan><tspan fill="#e6edf3">126</tspan></text>
+  <text x="610" y="622" font-size="16"><tspan fill="#ffb454">Stars earned: </tspan><tspan fill="#e6edf3">2</tspan></text>
   <text x="610" y="646" font-size="16"><tspan fill="#ffb454">Followers / Following: </tspan><tspan fill="#e6edf3">2 / 1</tspan></text>
-  <text x="610" y="670" font-size="16"><tspan fill="#ffb454">Lines changed: </tspan><tspan fill="#39ff88">+1,264,812</tspan><tspan fill="#8b949e"> / </tspan><tspan fill="#ff6b6b">-35,090</tspan></text>
+  <text x="610" y="670" font-size="16"><tspan fill="#ffb454">Lines changed: </tspan><tspan fill="#39ff88">+284,342</tspan><tspan fill="#8b949e"> / </tspan><tspan fill="#ff6b6b">-12,134</tspan></text>
   <line x1="610" y1="686.0" x2="972" y2="686.0" stroke="#30363d" stroke-width="1"/>
   <text x="610" y="716" font-size="13.5" letter-spacing="1" fill="#ffb454">$ cat contact.sh</text>
   <g><circle cx="613.5" cy="740.5" r="3.5" class="live-dot" fill="#39ff88"/><text x="628" y="745" font-size="11.5" letter-spacing="1" fill="#8b949e">EMAIL</text><text x="723" y="745" font-size="14.5" fill="#e6edf3">garvity375@gmail.com</text></g>

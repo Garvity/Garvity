@@ -27,7 +27,7 @@
 <!-- ▓▓▓ EMAIL BUTTON ▓▓▓ -->
 <p align="center">
   <a href="mailto:garvity375@gmail.com">
-    <img src="https://img.shields.io/badge/garvity375%40gmail.com-0d1117?style=for-the-badge&logo=gmail&logoColor=39ff88&labelColor=0a0a0a" alt="Email — Ofc.kusharu@gmail.com" />
+    <img src="https://img.shields.io/badge/garvity375%40gmail.com-0d1117?style=for-the-badge&logo=gmail&logoColor=39ff88&labelColor=0a0a0a" alt="Email — garvity375@gmail.com" />
   </a>
 </p>
 

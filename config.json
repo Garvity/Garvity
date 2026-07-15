@@ -1,5 +1,5 @@
 {
-  "_comment": "Replace every value below with your real info. Nothing here is fetched automatically except the fields under 'stats' when GITHUB_TOKEN + githubUsername are set in the environment (see USAGE.md).",
+  "_comment": "Replace every value below with your real info. GITHUB_TOKEN fetches profile data and line totals across owned, non-fork repositories. dist/profile-card-stats.json caches each default-branch head; statsFallback is used if GitHub is unavailable.",
 
   "name": "Garv R Changrani",
   "role": "AI/ML Engineer",
@@ -28,6 +28,7 @@
     "linesAdded": "284,342",
     "linesDeleted": "12,134",
     "profileViews": "890",
-    "following": "1"
+    "following": "1",
+    "accountCreated": "2023-12-17"
   }
 }

@@ -10,6 +10,7 @@ on:
     paths:
       - "config.json"
       - "generate.py"
+      - "tests/test_generate.py"
       - "ascii_dark.txt"
       - "ascii_light.txt"
 
@@ -29,19 +30,20 @@ jobs:
       - name: Install dependencies
         run: pip install requests --break-system-packages
 
+      - name: Run generator tests
+        run: python -m unittest discover -s tests -v
+
       - name: Generate updated card
         env:
-          # A token with at least "read:user" and "public_repo" (classic PAT)
-          # scope. Store it as a repo secret named PROFILE_TOKEN — the
-          # default PROFILE_TOKEN provided by Actions cannot read your
-          # profile's contribution/follower data.
-          PROFILE_TOKEN: ${{ secrets.PROFILE_TOKEN }}
+          # PROFILE_TOKEN is an optional PAT for private repositories.
+          # Python receives it under the standard GITHUB_TOKEN name.
+          GITHUB_TOKEN: ${{ secrets.PROFILE_TOKEN || github.token }}
         run: python generate.py
 
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add dist/profile-card-dark.svg dist/profile-card-light.svg
+          git add -A dist
           git diff --staged --quiet || git commit -m "chore: auto-refresh profile card [skip ci]"
           git push

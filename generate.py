@@ -1016,11 +1016,11 @@ def build_svg(theme, data, profile_config, ascii_art, uptime_string):
     contact_rows = [
         (label, value)
         for label, value in [
+            ("Status", "open to work"),
             ("Email", contact.get("email")),
             ("LinkedIn", contact.get("linkedin")),
             ("GitHub", contact.get("githubUrl")),
             ("Website", contact.get("website")),
-            ("Status", "open to work"),
         ]
         if value  # a missing config field just drops the entry
     ]

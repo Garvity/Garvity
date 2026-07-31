@@ -38,7 +38,7 @@
 ## 🛠️ Tech Stack
 
 <a href="https://skillicons.dev">
-  <img src="https://skillicons.dev/icons?i=python,js,ts,cpp,aws,docker,postgres,fastapi,react,git,linux,vscode&perline=12" alt="Tech stack icons">
+  <img src="https://skillicons.dev/icons?i=python,java,cpp,js,ts,react,nodejs,fastapi,spring,postgres,mongodb,redis,firebase,docker,aws,linux,git,github,githubactions,vscode,postman,tensorflow&perline=11" />
 </a>
 
 <br><br>

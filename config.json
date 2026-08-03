@@ -2,14 +2,14 @@
   "_comment": "Replace every value below with your real info. GITHUB_TOKEN fetches profile data and line totals across owned, non-fork repositories. dist/profile-card-stats.json caches each default-branch head; statsFallback is used if GitHub is unavailable.",
 
   "name": "Garv R Changrani",
-  "role": "AI/ML Engineer",
+  "role": "Java Developer",
   "tagline": "⚡ Building, breaking, learning, repeating.",
   "githubUsername": "garvity",
 
   "birthDate": "2004-09-23",
 
-  "languagesProgramming": ["Python", "JavaScript", "TypeScript", "C++"],
-  "techStack": ["Python", "LangChain", "LangGraph", "AWS", "RAG", "FastAPI", "PostgreSQL", "Docker"],
+  "languagesProgramming": ["Java", "Python", "TypeScript", "C++"],
+  "techStack": ["Java", "Spring Boot", "REST", "SOAP", "PostgreSQL", "Oracle", "JMS", "Linux"],
   "languagesSpoken": ["English", "Hindi", "Telugu"],
   "hobbies": ["OSS contributions", "coding", "reading", "gaming"],
 

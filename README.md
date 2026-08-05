@@ -10,8 +10,12 @@
 <br><br>
 
 <!-- ▓▓▓ TAGLINE TYPING ANIMATION ▓▓▓ -->
-<p align="center">
+<!-- <p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=24&duration=2000&pause=900&color=39FF88&center=true&vCenter=true&multiline=false&width=950&height=60&lines=%3E+Hi+%F0%9F%91%8B,+I'm+Garv;%3E+B.Tech+CSE+Graduate;%3E+AI%2FML+Engineer;%3E+Agentic+AI+%26+LLM+Applications;%3E+RAG+%E2%80%A2+AI+Agents+%E2%80%A2+Vector+Databases;%3E+Python+%E2%80%A2+FastAPI+%E2%80%A2+LangChain+%E2%80%A2+Qdrant;%3E+Open+to+AI%2FML+%26+GenAI+Opportunities" alt="Typing SVG" />
+</p> -->
+<!-- ▓▓▓ TAGLINE TYPING ANIMATION ▓▓▓ -->
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=24&duration=2000&pause=900&color=39FF88&center=true&vCenter=true&multiline=false&width=950&height=60&lines=%3E+Hi+%F0%9F%91%8B,+I'm+Garv;%3E+B.Tech+CSE+Graduate;%3E+Java%2FBackend+Engineer;%3E+Enterprise+%26+Banking+Systems;%3E+SOAP+%E2%80%A2+REST+%E2%80%A2+JMS+%E2%80%A2+JAXB;%3E+Java+%E2%80%A2+Spring+Boot+%E2%80%A2+Hibernate+%E2%80%A2+Oracle;%3E+Open+to+Java%2FBackend+Opportunities" alt="Typing SVG" />
 </p>
 
 <p align="center">

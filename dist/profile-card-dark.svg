@@ -58,7 +58,7 @@
   <text x="610" y="92" font-size="13.5"><tspan fill="#8b949e">garvity@github</tspan><tspan fill="#39ff88">:~$</tspan><tspan fill="#e6edf3"> ./profile --render</tspan></text>
   <text x="610" y="134" font-size="30" font-weight="700" letter-spacing="0" fill="#e6edf3">Garv R Changrani</text>
   <rect x="610" y="141" width="64" height="3" rx="1.5" fill="#39ff88"/>
-  <text x="610" y="174" font-size="19"><tspan fill="#39ff88">&gt; Java Developer </tspan><tspan class="cursor" fill="#39ff88">█</tspan></text>
+  <text x="610" y="174" font-size="19"><tspan fill="#39ff88">&gt; Software / AIML </tspan><tspan class="cursor" fill="#39ff88">█</tspan></text>
   <text x="610" y="197" font-size="14"  letter-spacing="0" fill="#8b949e">⚡ Building, breaking, learning, repeating.</text>
   <line x1="610" y1="213.0" x2="972" y2="213.0" stroke="#30363d" stroke-width="1"/>
   <text x="610" y="241" font-size="16"><tspan fill="#ffb454">Languages: </tspan><tspan fill="#e6edf3">Java, Python, TypeScript</tspan></text>
@@ -72,12 +72,12 @@
   <text x="610" y="431" font-size="13.5" letter-spacing="1" fill="#ffb454">// live status <tspan fill="#8b949e" letter-spacing="0">(auto-refreshed by CI)</tspan></text>
   <text x="610" y="455" font-size="16"><tspan fill="#ffb454">Age: </tspan><tspan fill="#e6edf3">21y 11m 12d</tspan></text>
   <text x="610" y="479" font-size="16"><tspan fill="#ffb454">Account age: </tspan><tspan fill="#e6edf3">2y 8m · joined Dec 2023</tspan></text>
-  <text x="610" y="503" font-size="16"><tspan fill="#ffb454">Contributions (yr): </tspan><tspan fill="#e6edf3">564</tspan></text>
+  <text x="610" y="503" font-size="16"><tspan fill="#ffb454">Contributions (yr): </tspan><tspan fill="#e6edf3">565</tspan></text>
   <text x="610" y="527" font-size="16"><tspan fill="#ffb454">Profile views: </tspan><tspan fill="#e6edf3">890</tspan></text>
-  <text x="610" y="551" font-size="16"><tspan fill="#ffb454">Total commits: </tspan><tspan fill="#e6edf3">482</tspan></text>
+  <text x="610" y="551" font-size="16"><tspan fill="#ffb454">Total commits: </tspan><tspan fill="#e6edf3">483</tspan></text>
   <text x="610" y="575" font-size="16"><tspan fill="#ffb454">Stars earned: </tspan><tspan fill="#e6edf3">0</tspan></text>
   <text x="610" y="599" font-size="16"><tspan fill="#ffb454">Followers / Following: </tspan><tspan fill="#e6edf3">2 / 1</tspan></text>
-  <text x="610" y="623" font-size="16"><tspan fill="#ffb454">Lines changed: </tspan><tspan fill="#39ff88">+1,369,098</tspan><tspan fill="#8b949e"> / </tspan><tspan fill="#ff6b6b">-35,295</tspan></text>
+  <text x="610" y="623" font-size="16"><tspan fill="#ffb454">Lines changed: </tspan><tspan fill="#39ff88">+1,369,099</tspan><tspan fill="#8b949e"> / </tspan><tspan fill="#ff6b6b">-35,296</tspan></text>
   <line x1="610" y1="639.0" x2="972" y2="639.0" stroke="#30363d" stroke-width="1"/>
   <text x="610" y="669" font-size="13.5" letter-spacing="1" fill="#ffb454">$ cat contact.sh</text>
   <g><circle cx="613.5" cy="693.5" r="3.5" class="live-dot" fill="#39ff88"/><text x="628" y="698" font-size="11.5" letter-spacing="1" fill="#8b949e">STATUS</text><text x="723" y="698" font-size="14.5" fill="#e6edf3">open to work</text></g>
